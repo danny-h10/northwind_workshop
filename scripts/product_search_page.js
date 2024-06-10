@@ -8,12 +8,23 @@ window.onload = () =>{
 
 }
 
+function hideShowRadio(event) {
+
+    if (event.target.value === "Type") {
+        showElement("#typeDropdown")
+        hideElement("#locationDropdown")
+    } else {
+        showElement("#locationDropdown")
+        hideElement("#typeDropdown")
+    }
+}
+
 
 async function populateTable(){
 
     let products = await getProducts();
 
-    let tbody = document.querySelector("#searchPage")
+    let tbody = document.querySelector("#productTableBody")
 
     products.forEach((course) =>{
         buildRow(tbody, course)
@@ -27,16 +38,16 @@ async function buildRow(someTableBody, someData){
 
     let row = someTableBody.insertRow();
 
-    let productIdCell = row.inserCell();
+    let productIdCell = row.insertCell();
     productIdCell.innerHTML = someData.productId
 
-    let productName = row.inserCell();
+    let productName = row.insertCell();
     productName.innerHTML = someData.productName
 
-    let productPrice = row.inserCell();
+    let productPrice = row.insertCell();
     productPrice.innerHTML = someData.unitPrice
 
-    let productDetails = row.inserCell();
+    let productDetails = row.insertCell();
     productDetails.innerHTML = `<a href="./product_details.html?categoryId=${someData.categoryId}">Show Details</a>`
 
 }
@@ -55,4 +66,16 @@ async function getProducts(){
     throw new Error(err)
 }
 
+}
+
+
+function hideElement(someSelector) {
+    let el = document.querySelector(someSelector);
+    el.style.display = "none";
+}
+
+
+function showElement(someSelector) {
+    let el = document.querySelector(someSelector);
+    el.style.display = "block";
 }
