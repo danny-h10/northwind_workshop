@@ -4,21 +4,19 @@ window.onload = () =>{
     
     console.log("yurr")
 
-    populateTable();
+    // initViewAllDD();
+
+    // let allDropdown = document.querySelector("#productSearchDDL")
+
+    // allDropdown.addEventListener("change", populateTable)
+
+    initCatDrop();
+
+    let catdropdown = document.querySelector("#categorySearchDDL")
+
+    catdropdown.addEventListener("change", loadCatTable)
 
 }
-
-function hideShowRadio(event) {
-
-    if (event.target.value === "Type") {
-        showElement("#typeDropdown")
-        hideElement("#locationDropdown")
-    } else {
-        showElement("#locationDropdown")
-        hideElement("#typeDropdown")
-    }
-}
-
 
 async function populateTable(){
 
@@ -26,10 +24,81 @@ async function populateTable(){
 
     let tbody = document.querySelector("#productTableBody")
 
-    products.forEach((course) =>{
-        buildRow(tbody, course)
+    products.forEach((product) =>{
+        buildRow(tbody, product)
 
 })
+}
+
+
+async function initViewAllDD(){
+
+   
+
+}
+
+
+async function initCatDrop(){
+
+    let categories = await getCategories();
+
+    let dropDown = document.querySelector("#categorySearchDDL")
+
+    let defaultOption = document.createElement("option")
+
+    defaultOption.textContent = "Choose a Category"
+    defaultOption.value = ""
+
+    dropDown.appendChild(defaultOption)
+
+    categories.forEach((data) =>{
+        let newOption = document.createElement("option");
+
+        newOption.value = data.categoryId
+
+        newOption.textContent = data.name
+
+        dropDown.appendChild(newOption);
+
+    })
+}
+
+
+async function loadCatTable(event) {
+
+    let dropdown = event.target
+    let tableBody = document.querySelector("#categoryTableBody")
+
+
+    let selectedCats = event.target.value
+
+    let products = await getProducts();
+
+    let matchingCats = products.filter((data) => {
+
+        return `${data.categoryId}` === selectedCats;
+    })
+
+    tableBody.innerHTML = ""
+
+    matchingCats.forEach((data) => {
+        buildCatRow(tableBody, data)
+    })
+
+}
+
+
+
+
+async function buildCatRow(catTableBody, Catdata){
+
+    let row = catTableBody.insertRow();
+
+    let catIdCell = row.insertCell();
+    catIdCell.innerHTML = Catdata.categoryId
+
+    let catDescCell = row.insertCell();
+    catDescCell.innerHTML = Catdata.productName
 }
 
 
@@ -48,7 +117,7 @@ async function buildRow(someTableBody, someData){
     productPrice.innerHTML = someData.unitPrice
 
     let productDetails = row.insertCell();
-    productDetails.innerHTML = `<a href="./product_details.html?categoryId=${someData.categoryId}">Show Details</a>`
+    productDetails.innerHTML = `<a href="./product_detail.html?categoryId=${someData.categoryId}">Show Details</a>`
 
 }
 
@@ -69,13 +138,17 @@ async function getProducts(){
 }
 
 
-function hideElement(someSelector) {
-    let el = document.querySelector(someSelector);
-    el.style.display = "none";
-}
+async function getCategories(){
 
+    try{
+        let response = await fetch("http://localhost:8081/api/categories")
 
-function showElement(someSelector) {
-    let el = document.querySelector(someSelector);
-    el.style.display = "block";
+        let categories = await response.json();
+
+        return categories
+    }catch(err){
+    console.log(err)
+    throw new Error(err)
+    }
+
 }
