@@ -10,6 +10,8 @@ window.onload = () =>{
 
     // allDropdown.addEventListener("change", populateTable)
 
+    populateTable();
+
     initCatDrop();
 
     let catdropdown = document.querySelector("#categorySearchDDL")
