@@ -1,46 +1,46 @@
 "use strict"
 
-window.onload = () =>{
-    
+window.onload = () => {
+
     console.log("yurr")
 
-    // initViewAllDD();
+    let allDropdown = document.querySelector("#productSearchDDL")
 
-    // let allDropdown = document.querySelector("#productSearchDDL")
+    allDropdown.addEventListener("change", populateTable)
 
-    // allDropdown.addEventListener("change", populateTable)
-
-    populateTable();
 
     initCatDrop();
 
     let catdropdown = document.querySelector("#categorySearchDDL")
-
+    catdropdown.classList.add("d-none")
     catdropdown.addEventListener("change", loadCatTable)
 
 }
 
-async function populateTable(){
+async function populateTable(event) {
 
     let products = await getProducts();
 
+    let catdropdown = document.querySelector("#categorySearchDDL")
+    catdropdown.classList.add("d-none")
+
     let tbody = document.querySelector("#productTableBody")
 
-    products.forEach((product) =>{
-        buildRow(tbody, product)
+    tbody.innerHTML = ""
 
-})
+    let selectedSearch = event.target.value
+
+
+    if (selectedSearch === "viewAll") {
+        products.forEach((product) => {
+            buildRow(tbody, product)
+        })
+    }else{
+        catdropdown.classList.remove("d-none")
+    }
 }
 
-
-async function initViewAllDD(){
-
-   
-
-}
-
-
-async function initCatDrop(){
+async function initCatDrop() {
 
     let categories = await getCategories();
 
@@ -53,7 +53,7 @@ async function initCatDrop(){
 
     dropDown.appendChild(defaultOption)
 
-    categories.forEach((data) =>{
+    categories.forEach((data) => {
         let newOption = document.createElement("option");
 
         newOption.value = data.categoryId
@@ -68,44 +68,24 @@ async function initCatDrop(){
 
 async function loadCatTable(event) {
 
-    let dropdown = event.target
-    let tableBody = document.querySelector("#categoryTableBody")
+    let selectedCategory = event.target.value
+
+    let products = await getFilteredProducts(selectedCategory);
 
 
-    let selectedCats = event.target.value
+    let tbody = document.querySelector("#productTableBody")
 
-    let products = await getProducts();
+    tbody.innerHTML = ""
 
-    let matchingCats = products.filter((data) => {
+    products.forEach((product) => {
+        buildRow(tbody, product)
 
-        return `${data.categoryId}` === selectedCats;
-    })
-
-    tableBody.innerHTML = ""
-
-    matchingCats.forEach((data) => {
-        buildCatRow(tableBody, data)
     })
 
 }
 
 
-
-
-async function buildCatRow(catTableBody, Catdata){
-
-    let row = catTableBody.insertRow();
-
-    let catIdCell = row.insertCell();
-    catIdCell.innerHTML = Catdata.categoryId
-
-    let catDescCell = row.insertCell();
-    catDescCell.innerHTML = Catdata.productName
-}
-
-
-
-async function buildRow(someTableBody, someData){
+async function buildRow(someTableBody, someData) {
 
     let row = someTableBody.insertRow();
 
@@ -124,33 +104,47 @@ async function buildRow(someTableBody, someData){
 }
 
 
-async function getProducts(){
+async function getProducts() {
 
-    try{
-    let response = await fetch("http://localhost:8081/api/products")
+    try {
+        let response = await fetch("http://localhost:8081/api/products")
 
-    let products = await response.json();
+        let products = await response.json();
 
-    return products
-    }catch(err){
-    console.log(err)
-    throw new Error(err)
+        return products
+    } catch (err) {
+        console.log(err)
+        throw new Error(err)
+    }
+
 }
 
+async function getFilteredProducts(categoryId) {
+
+    try {
+        let response = await fetch("http://localhost:8081/api/products/bycategory/" + categoryId)
+
+        let products = await response.json();
+
+        return products
+    } catch (err) {
+        console.log(err)
+        throw new Error(err)
+    }
+
 }
 
+async function getCategories() {
 
-async function getCategories(){
-
-    try{
+    try {
         let response = await fetch("http://localhost:8081/api/categories")
 
         let categories = await response.json();
 
         return categories
-    }catch(err){
-    console.log(err)
-    throw new Error(err)
+    } catch (err) {
+        console.log(err)
+        throw new Error(err)
     }
 
 }
